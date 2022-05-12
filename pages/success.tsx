@@ -37,7 +37,6 @@ import {
   useColorMode,
 } from '@chakra-ui/react'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { AuthContextProvider, useAuth } from '../context/AuthContext'
 
 
 const Login = () => {

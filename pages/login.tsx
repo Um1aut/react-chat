@@ -36,8 +36,7 @@ const color = {
 import {
   useColorMode,
 } from '@chakra-ui/react'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { AuthContextProvider, useAuth } from '../context/AuthContext'
+import { browserLocalPersistence, browserSessionPersistence, getAuth, GoogleAuthProvider, inMemoryPersistence, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 
 
 const Login = () => {
@@ -48,7 +47,13 @@ const Login = () => {
   })
   const auth = getAuth();
   const login = (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password)
+    setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+      return signInWithEmailAndPassword(auth, email, password);
+    }).catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    });
   }
 
   const handleLogin = async (e: any) => {
@@ -75,7 +80,7 @@ const Login = () => {
             You have successfully logged in!
           </Alert>
         ) : (
-          <AuthContextProvider>
+          <Anim>
           <Box p={8} maxWidth="500px" borderWidth={1} borderRadius={8} boxShadow="lg">
           <Box textAlign="center">
           <Heading>Login</Heading>
@@ -106,7 +111,7 @@ const Login = () => {
             </form>
           </Box>
           </Box>
-          </AuthContextProvider>
+          </Anim>
         )}
     </Flex>
     </Stack>

@@ -4,6 +4,8 @@ import Anim from '../components/section.js'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
+import {db} from '../config/firebase'
+
 import {
     createUserWithEmailAndPassword,
   } from 'firebase/auth'
@@ -36,12 +38,14 @@ const color = {
   light: 'black',
   dark: 'white'
 }
+const auth = getAuth();
+const usera = auth.currentUser;
 
 import {
   useColorMode,
 } from '@chakra-ui/react'
 import { getAuth } from 'firebase/auth';
-import { AuthContextProvider, useAuth } from '../context/AuthContext'
+import { addDoc, collection } from 'firebase/firestore';
 
 
 const Login = () => {
@@ -49,22 +53,33 @@ const Login = () => {
   const [data, setData] = useState({
     email: '',
     password: '',
+    name: ''
   })
-  const auth = getAuth();
-  const signup = (email: string, password: string) => {
-    return createUserWithEmailAndPassword(auth, email, password)
+
+  const signup = async (email: string, password: string, name: string) => {
+    try {
+        const docRef = await addDoc(collection(db, "users"), {
+          name: name,
+          email: email
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    return (
+        createUserWithEmailAndPassword(auth, email, password)
+    )
   }
 
   const handleLogin = async (e: any) => {
     e.preventDefault()
     try {
-      await signup(data.email, data.password)
+      await signup(data.email, data.password, data.name)
       router.push('/success')
     } catch (err) {
       console.log(err)
     }
   }
-  const usera = auth.currentUser;
   const {colorMode} = useColorMode()
   return (
     <Anim>
@@ -79,7 +94,7 @@ const Login = () => {
             You have successfully logged in!
           </Alert>
         ) : (
-          <AuthContextProvider>
+          <Anim>
           <Box p={8} maxWidth="500px" borderWidth={1} borderRadius={8} boxShadow="lg">
           <Box textAlign="center">
           <Heading>Sign up</Heading>
@@ -93,6 +108,14 @@ const Login = () => {
                   ...data,
                   email: e.target.value,
                 }) } type="email" placeholder="test@test.com" />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Tag</FormLabel>
+                <Input onChange={(e: any) =>
+                setData({
+                  ...data,
+                  name: e.target.value,
+                }) } placeholder="@UserName" />
               </FormControl>
               <FormControl mt={6} isRequired>
                 <FormLabel>Password</FormLabel>
@@ -109,7 +132,7 @@ const Login = () => {
             </form>
           </Box>
           </Box>
-          </AuthContextProvider>
+          </Anim>
         )}
     </Flex>
     </Stack>

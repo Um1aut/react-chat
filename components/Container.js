@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../config/firebase'
-import { getAuth, signOut } from "firebase/auth";
+import { browserSessionPersistence, GoogleAuthProvider, setPersistence, getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { 
   Container,
   Box,
@@ -14,7 +14,7 @@ import {
   MenuList,
   MenuButton,
   IconButton,} from '@chakra-ui/react'
-
+  import Anim from '../components/section.js'
 import {
   useColorMode,
 } from '@chakra-ui/react'
@@ -24,17 +24,9 @@ import styled from '@emotion/styled'
 
 import DarkModeSwitch from './DarkModeSwitch'
 
-import { useAuth } from '../context/AuthContext'
 import { useRouter } from 'next/router'
-import {AuthContextProvider} from '../context/AuthContext'
 
-function signout(auth) {
-  signOut(auth).then(() => {
-    // Sign-out successful.
-  }).catch((error) => {
-    console.log(error)
-  });
-}
+const auth = getAuth();
 
 const Navbar = () => {
   const router = useRouter()
@@ -63,8 +55,31 @@ const Navbar = () => {
     transition: height .5s, line-height .5s;
   `
   
-  const auth = getAuth();
-  const usera = auth.currentUser;
+  const usera = auth.currentUser
+  let [sign, changeSign] = useState()
+  const AuthStateChange = async() => {
+    await onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        changeSign(true)
+        // ...
+      } else {
+        // User is signed out
+        // ...
+        changeSign(false)
+      }
+    });
+}
+function signout(auth) {
+    signOut(auth).then(() => {
+      router.push('/')
+    }).catch((error) => {
+      console.log(error)
+    });
+}
+AuthStateChange()
 
   return(
      <>
@@ -102,8 +117,7 @@ const Navbar = () => {
         </Box>
       </Stack>
           <Box pr={2} flex={1} align="right">
-          {usera ? (
-            <AuthContextProvider>
+          {sign == true ? (
             <NextLink href="/" passHref>
               <Button as="a" opacity="1.0"
               bg={bgColor[colorMode]}
@@ -111,13 +125,10 @@ const Navbar = () => {
               variant="ghost" align="right"
               onClick={() => {
                 signout(auth)
-                router.push('/')
               }} >Logout
               </Button> 
             </NextLink>
-            </AuthContextProvider>
                 ) : (
-                  <AuthContextProvider>
                 <NextLink href="/login" passHref>
                   <Button as="a" opacity="1.0"
                   bg={bgColor[colorMode]}
@@ -125,7 +136,6 @@ const Navbar = () => {
                   variant="ghost" >Login
                   </Button>
               </NextLink>
-              </AuthContextProvider>
             )}
             <DarkModeSwitch />
         <Box ml={2} display={{ base: 'inline-block', md: 'none' }}>
