@@ -107,7 +107,7 @@ export default function Sidebar() {
                         else
                             changeNavSize("small");
                     } } aria-label={''}                />
-                <NavItem navSize={navSize} title="Марк" icon={undefined} description={undefined} active={undefined} />
+                <NavItem navSize={navSize} title="Test" icon={undefined} description={undefined} active={undefined} />
             </Flex>
 
             <Flex

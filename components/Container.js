@@ -87,7 +87,7 @@ AuthStateChange()
       position="fixed"
       as="nav"
       w="100%"
-      css={{ backdropFilter: 'blur(10px)' }}
+      css={{ backdropFilter: 'blur(20px)' }}
       zIndex={1}
     >
       <Container
@@ -111,7 +111,7 @@ AuthStateChange()
             <Button as="a" opacity="1.0"
             bg={bgColor[colorMode]}
             color={color[colorMode]}
-            variant="ghost" >Chats
+            variant="ghost" >Home
             </Button> 
           </NextLink>
         </Box>
