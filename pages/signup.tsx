@@ -4,6 +4,8 @@ import Anim from '../components/section.js'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
+
+
 import {db} from '../config/firebase'
 
 import {
@@ -40,6 +42,8 @@ const color = {
 }
 const auth = getAuth();
 const usera = auth.currentUser;
+
+
 
 import {
   useColorMode,

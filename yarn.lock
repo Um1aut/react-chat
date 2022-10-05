@@ -7562,6 +7562,13 @@ react-remove-scroll@2.4.1:
     use-callback-ref "^1.2.3"
     use-sidecar "^1.0.1"
 
+react-router-loading@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-router-loading/-/react-router-loading-1.0.0.tgz#412bdd36c0feea73dee32324e7da4d1d2cdcf112"
+  integrity sha512-aEpqiyDrBGbDOhFiKSuXzI78FZIMmjV1+Rok6rBFdbrrifNdg3XnzU48zBPm4r/E2YShtcsYLvIZ74DU5EVMxw==
+  dependencies:
+    topbar "^1.0.1"
+
 react-spring@^8.0.27:
   version "8.0.27"
   resolved "https://registry.yarnpkg.com/react-spring/-/react-spring-8.0.27.tgz#97d4dee677f41e0b2adcb696f3839680a3aa356a"
@@ -8780,6 +8787,11 @@ toidentifier@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.0.tgz"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
+
+topbar@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/topbar/-/topbar-1.0.1.tgz#7987fb9ea40ce702ed2d9fcded3407a8ae5a33a9"
+  integrity sha512-HZqQSMBiG29vcjOrqKCM9iGY/h69G5gQH7ae83ZCPz5uPmbQKwK0sMEqzVDBiu64tWHJ+kk9NApECrF+FAAvRA==
 
 tr46@^1.0.1:
   version "1.0.1"

@@ -5,7 +5,7 @@ const DarkModeSwitch = () => {
 
       const { colorMode, toggleColorMode } = useColorMode()
       const iconColor = {
-        light: 'black',
+        light: 'white',
         dark: 'white'
       }
       return (

@@ -87,7 +87,7 @@ AuthStateChange()
       position="fixed"
       as="nav"
       w="100%"
-      css={{ backdropFilter: 'blur(20px)' }}
+      css={{ backdropFilter: 'blur(7px)' }}
       zIndex={1}
     >
       <Container
