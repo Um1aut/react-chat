@@ -4,10 +4,12 @@ import Content from '../components/home.js'
 import Anim from '../components/section.js'
 import Sidebar from '../components/Sidebar'
 import {db} from '../config/firebase'
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { IconButton } from '@chakra-ui/react'
 import { FiMenu } from 'react-icons/fi'
+
+import { useCollectionData } from 'react-firebase-hooks/firestore';
 const auth = getAuth();
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
@@ -21,8 +23,14 @@ import { useColorMode,
         Container,
         Progress,Input, Box, Button
 } from '@chakra-ui/react'
+import { stringify } from 'gray-matter'
+import { useEffect } from 'react'
 
 export default function Index() {
+  const [messageInfo, setmessageInfo] = useState([])
+
+  const q = query(collection(db, "messages"), orderBy("date", "asc"));
+  const [m] = useCollectionData(q, {name: 'name', message: 'message'})
   const {colorMode} = useColorMode()
   const colorSecondary = {
     light: 'gray.700',
@@ -32,22 +40,16 @@ export default function Index() {
   const [data, setData] = useState({
     messageText: '',
   })
-
-  // const sendMessage = (messageText) => {
-  //   try {
-  //     console.log(messageText)
-  //   } catch (e) {
-  //     console.log(e)
-  //   }
-  // }
-
   let [sign, changeSign] = useState(Boolean)
+  let [user, setUser] = useState('')
+
   const AuthStateChange = async() => {
     onAuthStateChanged(auth, (user) => {
           if (user) {
               // User is signed in, see docs for a list of available properties
               // https://firebase.google.com/docs/reference/js/firebase.User
-              const uid = user.uid;
+              const uid = user.email;
+              setUser(uid)
               changeSign(true);
               // ...
           } else {
@@ -65,14 +67,14 @@ export default function Index() {
         emailsetState(email)
       }
   })
-  const [docState, setState] = useState()
+  const [docState, setdocState] = useState()
 
   const getfromdb = async () => {
           const querySnapshot = await getDocs(collection(db, "users"));
           if (userState) {
               querySnapshot.forEach((doc) => {
                   if(emailState == doc.data().email) {
-                      setState(doc.data().name)
+                      setdocState(doc.data().name)
                   }
               });
           }
@@ -83,7 +85,8 @@ export default function Index() {
     try {
         const docRef = await addDoc(collection(db, "messages"), {
           name: name,
-          message: message
+          message: message,
+          date: new Date().getTime()
         });
         console.log("Document written with ID: ", docRef.id);
       } catch (e) {
@@ -94,7 +97,8 @@ export default function Index() {
   const handleMessage = async (e) => {
     e.preventDefault()
     try {
-      await sendMessage(docState ,data.messageText)
+      document.getElementById('input').value = ''
+      await sendMessage(docState, data.messageText)
     } catch (err) {
       console.log(err)
     }
@@ -105,9 +109,28 @@ export default function Index() {
     <Stack>
     <Navbar/>
     <Content>
-      <Flex pos="absolute" top="10%" left="20%" alignItems={"center"} w="60%" pb="100px">
-        {}
-      </Flex>
+    <Anim>
+        <Container position={"absolute"} top="10%" maxWidth={"900px"} left="20%" w="80%" pb="100px">
+        <ul>
+        {
+        m && m.map((el)=>
+        <Container display="flex" justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
+          <Box mb="5px" 
+          bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, black, black)')}
+          rounded={"25px"} 
+          p={4} 
+          color='white'>
+            <Text fontSize={"12px"} color='whiteAlpha.500'>{
+            docState == el.name ? ('') : (el.name)
+            }</Text>
+            {el.message}
+          </Box>
+        </Container>  
+        )
+        }
+        </ul>
+        </Container>
+      </Anim>
       <Flex w="100%" mt="1em" maxWidth="700px">
       <Sidebar />
       <Box
@@ -129,7 +152,7 @@ export default function Index() {
         left="20%"
         zIndex={1}
         >
-            <Input onChange={(e) =>
+            <Input id="input" onChange={(e) =>
                 setData({
                   ...data,
                   messageText: e.target.value,

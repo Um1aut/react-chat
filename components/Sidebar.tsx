@@ -80,7 +80,7 @@ export default function Sidebar() {
     return (
         <Box>
             <Flex pos="fixed" top="20%" left="5%">
-            {sign ? (<Text>You are logged as: <Heading size="sm">{docState}</Heading> </Text>) : (<Text text-align="center " fontSize="14px">Don't have an account? <a href="/signup">Sign up</a> </Text> )}
+            {sign ? (<Text><Heading size="sm">{docState}</Heading> </Text>) : (<Text text-align="center " fontSize="14px">Don't have an account? <a href="/signup">Sign up</a> </Text> )}
             </Flex>
         </Box>
     )
