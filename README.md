@@ -16,6 +16,7 @@
 - ###  Edit, delete and emoji features.
 - ### video, photo and gifs.
 - ### ability to create chats
+- ### remove all vulnerabilities
 
 ## Installation
 
