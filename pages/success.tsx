@@ -36,30 +36,29 @@ const color = {
 import {
   useColorMode,
 } from '@chakra-ui/react'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 
 
 const Login = () => {
-  const router = useRouter()
-  const [data, setData] = useState({
-    email: '',
-    password: '',
-  })
   const auth = getAuth();
-  const login = (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password)
-  }
-
-  const handleLogin = async (e: any) => {
-    e.preventDefault()
-    try {
-      await login(data.email, data.password)
-      router.push('/')
-    } catch (err) {
-      console.log(err)
-    }
-  }
   const usera = auth.currentUser;
+  let [sign, changeSign] = useState(Boolean)
+  const AuthStateChange = async() => {
+    onAuthStateChanged(auth, (user) => {
+          if (user) {
+              // User is signed in, see docs for a list of available properties
+              // https://firebase.google.com/docs/reference/js/firebase.User
+              const uid = user.uid;
+              changeSign(true);
+              // ...
+          } else {
+              // User is signed out
+              // ...
+              changeSign(false);
+          }
+      });
+  }
+  AuthStateChange()
   const {colorMode} = useColorMode()
   return (
     <Anim>
@@ -68,7 +67,7 @@ const Login = () => {
     <Flex pt="3em" 
       bg={bgColor[colorMode]}
       color={color[colorMode]} width="full" align="center" justifyContent="center">
-        {usera ? (
+        {sign ? (
         <Box p={8} maxWidth="500px">
           <Alert status='success'>
             <AlertIcon />
@@ -76,7 +75,12 @@ const Login = () => {
           </Alert>
       </Box>
         ) : (
-          <div>Auth</div>
+          <Box p={8} maxWidth="500px">
+            <Alert status='error'>
+              <AlertIcon />
+              Invalid login or password
+            </Alert>
+          </Box>
         )}
     </Flex>
     </Stack>

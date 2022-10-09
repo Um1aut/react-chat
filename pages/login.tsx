@@ -60,7 +60,7 @@ const Login = () => {
     e.preventDefault()
     try {
       await login(data.email, data.password)
-      router.push('/')
+      router.push('/success')
     } catch (err) {
       console.log(err)
     }

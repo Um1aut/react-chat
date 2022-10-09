@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDocs } from "firebase/firestore"; 
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore"; 
 
 import {
     Flex,
@@ -10,7 +10,10 @@ import {
     Avatar,
     Heading,
     Link,
-    Box
+    Box,
+    Button,
+    Spinner,
+    useBoolean
 } from '@chakra-ui/react'
 import {
     FiMenu,
@@ -29,6 +32,7 @@ const user = auth.currentUser;
 
 import {db} from '../config/firebase'
 import router from 'next/router';
+import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 // async function getfromdb(db: any) {
 //     const querySnapshot = await getDocs(collection(db, "users"));
@@ -62,6 +66,10 @@ export default function Sidebar() {
           emailsetState(email)
         }
     })
+
+    const q = query(collection(db, "users"));
+    const [m] = useCollectionData(q, {name: 'name'})
+
     const [docState, setState] = useState()
     const [navSize, changeNavSize] = useState("large")
 
@@ -75,12 +83,71 @@ export default function Sidebar() {
                 });
             }
     }
+
+    const [chatCanBeCrated, setchatCanBeCreated] = useBoolean(false)
+
+    const createChat = async (firstMessager, secondMessager) => {
+        try {
+            const q = query(collection(db, "chats"));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                    const createChatSequence = docState + secondMessager
+                    const createChatSequenceSecond = docState + firstMessager
+
+                    const normal = doc.data().firstMessager + doc.data().secondMessager;
+                    const reverse = doc.data().secondMessager + doc.data().firstMessager;
+
+                    if(createChatSequence == normal || createChatSequence == reverse ||createChatSequenceSecond == normal || createChatSequenceSecond == reverse) {
+                        console.log('dsads')
+                        setchatCanBeCreated.off()
+                    } else {
+                        console.log('dsdsadsa')
+                        setchatCanBeCreated.on()
+                    }
+            })
+
+            if(chatCanBeCrated == true) {
+                const docRef = await addDoc(collection(db, "chats"), {
+                    firstMessager: firstMessager,
+                    secondMessager: secondMessager
+                });
+                console.log("Document written with ID: ", docRef.id);
+                setchatCanBeCreated.off()
+            }
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+
+    const handleChat = async (user) => {
+        try {
+        await createChat(docState, user)
+        } catch (err) {
+        console.log(err)
+        }
+    }
     AuthStateChange()
     getfromdb()
     return (
         <Box>
-            <Flex pos="fixed" top="20%" left="5%">
-            {sign ? (<Text><Heading size="sm">{docState}</Heading> </Text>) : (<Text text-align="center " fontSize="14px">Don't have an account? <a href="/signup">Sign up</a> </Text> )}
+            <Flex pos="fixed" top="10%" left="5%">
+                <Box maxWidth={"280px"} h="100%" rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
+                    {sign ?
+                    (<Text><Heading fontSize={"17px"} mb="5px">{docState}</Heading> </Text>)
+                    : 
+                    (<Text 
+                    text-align="center"
+                    fontSize={"14px"}
+                    pb="2">
+                        Don't have an account? <Link href="/signup" pb="10px">Sign up</Link></Text> )}
+                    <Divider/>
+                    {
+                    m && m.map((el) =>
+                    docState == el.name ? ("") : (<Button onClick={(() => {handleChat(el.name)})} variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{docState == el.name ? ("") : (el.name)}</Button>)
+                    )}
+                    <Divider mt="2"/>
+                    <Button mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Account Preferences</Button>
+                </Box>
             </Flex>
         </Box>
     )

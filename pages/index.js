@@ -23,11 +23,8 @@ import { useColorMode,
         Container,
         Progress,Input, Box, Button
 } from '@chakra-ui/react'
-import { stringify } from 'gray-matter'
-import { useEffect } from 'react'
 
 export default function Index() {
-  const [messageInfo, setmessageInfo] = useState([])
 
   const q = query(collection(db, "messages"), orderBy("date", "asc"));
   const [m] = useCollectionData(q, {name: 'name', message: 'message'})
@@ -102,25 +99,25 @@ export default function Index() {
     } catch (err) {
       console.log(err)
     }
-
   }
+  
   return (
     <Anim>
     <Stack>
     <Navbar/>
     <Content>
     <Anim>
-        <Container position={"absolute"} top="10%" maxWidth={"900px"} left="20%" w="80%" pb="100px">
+        <Container pt="50px" pb="32px">
         <ul>
         {
         m && m.map((el)=>
         <Container display="flex" justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
           <Box mb="5px" 
-          bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, black, black)')}
+          bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, blackAlpha.300, blackAlpha.300)')}
           rounded={"25px"} 
           p={4} 
-          color='white'>
-            <Text fontSize={"12px"} color='whiteAlpha.500'>{
+          color={colorMode}>
+            <Text pb={docState == el.name ? ("0px") : ('5px')} fontSize={"12px"} color={colorMode}>{
             docState == el.name ? ('') : (el.name)
             }</Text>
             {el.message}
@@ -152,7 +149,7 @@ export default function Index() {
         left="20%"
         zIndex={1}
         >
-            <Input id="input" onChange={(e) =>
+            <Input variant={"filled"} id="input" onChange={(e) =>
                 setData({
                   ...data,
                   messageText: e.target.value,
