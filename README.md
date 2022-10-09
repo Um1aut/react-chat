@@ -5,7 +5,6 @@
 
 ![Alt](https://i.imgur.com/yFVHGKa.png)
 ### [More detailed showcase](https://imgur.com/a/MH0yRla)
-### [Additional Features](https://imgur.com/a/TpsHW0W)
 
 ## Realized Features
 - ### Automatic Authentification.
