@@ -8,7 +8,6 @@
 
 ## Realized Features
 - ### Automatic Authentification.
-- ### Light Mode switcher.
 - ### Live db updates.
 
 ## RoadMap
