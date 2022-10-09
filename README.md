@@ -1,5 +1,5 @@
 # Simple React chat
-## A simple chat application made using React, Next.js and Firebase
+### A simple chat application made using React, Next.js and Firebase
 
 #### Showcase
 
@@ -7,9 +7,9 @@
 ### [More detailed showcase](https://imgur.com/a/MH0yRla)
 
 ## Realized Features
-- ### - Automatic Authentification.
-- ### - Light Mode switcher.
-- ### - Live db updates.
+- ### Automatic Authentification.
+- ### Light Mode switcher.
+- ### Live db updates.
 
 ## RoadMap
 - ### "personal messages" implementation
