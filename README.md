@@ -4,7 +4,7 @@
 #### Showcase
 
 ![Alt](https://i.imgur.com/yFVHGKa.png)
-### [More detailed showcase](https://imgur.com/a/Slut12F)
+### [More detailed showcase](https://imgur.com/a/4zoiPVk)
 
 ## Realized Features
 - ### Automatic Authentification.
