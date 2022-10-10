@@ -67,8 +67,8 @@ export default function Sidebar() {
         }
     })
 
-    const q = query(collection(db, "users"));
-    const [m] = useCollectionData(q, {name: 'name'})
+    const q = query(collection(db, "chats"));
+    const [m] = useCollectionData(q, {firstMessager: 'firstMessager', secondMessager: 'secondMessager'})
 
     const [docState, setState] = useState()
     const [navSize, changeNavSize] = useState("large")
@@ -143,7 +143,11 @@ export default function Sidebar() {
                     <Divider/>
                     {
                     m && m.map((el) =>
-                    docState == el.name ? ("") : (<Button onClick={(() => {handleChat(el.name)})} variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{docState == el.name ? ("") : (el.name)}</Button>)
+                    el.firstMessager == docState ? 
+                    (<Button variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
+                    (el.secondMessager == docState ? 
+                    (<Button variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
+                    )
                     )}
                     <Divider mt="2"/>
                     <Button mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Account Preferences</Button>
