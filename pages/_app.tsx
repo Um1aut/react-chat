@@ -1,6 +1,8 @@
-import { ChakraProvider, ColorModeProvider, useColorMode } from '@chakra-ui/react'
+import { ChakraProvider, ColorModeProvider, Progress, Spinner, useColorMode } from '@chakra-ui/react'
 import customTheme from '../styles/theme.js'
 import { Global, css } from '@emotion/react'
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router.js';
 
 const GlobalStyle = ({children}) => {
   const { colorMode } = useColorMode()
@@ -42,6 +44,34 @@ const GlobalStyle = ({children}) => {
 }
 
 function MyApp({ Component, pageProps }) {
+  const [animationValue, setAnimationValue] = useState(0)
+  const router = useRouter()
+  
+  React.useEffect(() => {
+    const el = document.getElementById('progressBar')
+    const handleStart = () => {
+      // for(let i=0; i<=50; i++) {
+      //   setTimeout(() => setAnimationValue(i+20), 1);
+      // }
+      setTimeout(() => el.style.visibility='visible', 50);
+      setAnimationValue(30)
+      setTimeout(() => setAnimationValue(60), 200);
+    }
+    const handleStop = () => {
+      setTimeout(() => setAnimationValue(100), 400);
+      setTimeout(() => setAnimationValue(0), 800);
+      setTimeout(() => el.style.visibility='hidden', 800);
+    }
+  
+    router.events.on('routeChangeStart', handleStart)
+    router.events.on('routeChangeComplete', handleStop)
+  
+    return () => {
+      router.events.off('routeChangeStart', handleStart)
+      router.events.off('routeChangeComplete', handleStop)
+    }
+  }, [router])
+
   return (
     <ChakraProvider resetCSS theme={customTheme}>
       <ColorModeProvider 
@@ -50,9 +80,10 @@ function MyApp({ Component, pageProps }) {
         useSystemColorMode: true,
       }}
     >
-      <GlobalStyle>
-        <Component {...pageProps} />
-      </GlobalStyle>
+        <GlobalStyle>
+          <Progress sx={{"& > div:first-child": {transitionProperty: "width",},}} zIndex={3} size='xs' id='progressBar' colorScheme='blue' value={animationValue}></Progress>
+          <Component {...pageProps} />
+        </GlobalStyle>
       </ColorModeProvider>
     </ChakraProvider>
   ) 

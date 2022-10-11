@@ -68,10 +68,11 @@ const Login = () => {
   const usera = auth.currentUser;
   const {colorMode} = useColorMode()
   return (
+    <>
+    <Navbar/>
     <Anim>
     <Stack>
-    <Navbar/>
-    <Flex pt="3em" 
+    <Flex pt="4em" 
       bg={bgColor[colorMode]}
       color={color[colorMode]} width="full" align="center" justifyContent="center">
         {usera ? (
@@ -116,6 +117,7 @@ const Login = () => {
     </Flex>
     </Stack>
     </Anim>
+    </>
   );
 } 
 

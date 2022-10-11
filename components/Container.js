@@ -13,7 +13,7 @@ import {
   MenuItem,
   MenuList,
   MenuButton,
-  IconButton,} from '@chakra-ui/react'
+  IconButton, Progress} from '@chakra-ui/react'
   import Anim from '../components/section.js'
 import {
   useColorMode,
@@ -24,11 +24,12 @@ import styled from '@emotion/styled'
 
 import DarkModeSwitch from './DarkModeSwitch'
 
-import { useRouter } from 'next/router'
+import { useRouter, useEffect } from 'next/router'
 
 const auth = getAuth();
 
 const Navbar = () => {
+
   const router = useRouter()
 
   const { colorMode } = useColorMode()

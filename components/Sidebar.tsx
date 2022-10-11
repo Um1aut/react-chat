@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore"; 
-
+import NextLink from 'next/link'
 import {
     Flex,
     Text,
@@ -13,7 +13,9 @@ import {
     Box,
     Button,
     Spinner,
-    useBoolean
+    useBoolean,
+    Center,
+    Progress
 } from '@chakra-ui/react'
 import {
     FiMenu,
@@ -33,6 +35,7 @@ const user = auth.currentUser;
 import {db} from '../config/firebase'
 import router from 'next/router';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import Anim from './section';
 
 // async function getfromdb(db: any) {
 //     const querySnapshot = await getDocs(collection(db, "users"));
@@ -126,32 +129,77 @@ export default function Sidebar() {
         console.log(err)
         }
     }
+    const [chatMessagesState, setMessagesState] = useState('')
+
+    const [docRefState, setDocRefState] = useState()
+
+    const [loading, setLoading] = useState(false)
+    useEffect(() => {
+      setTimeout(() => setLoading(true), 2000);
+    }, [])
     AuthStateChange()
     getfromdb()
+    const OpenChat = async (firstMessager, secondMessager) => {
+      try {
+        const q = query(collection(db, "chats"));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            if(secondMessager + firstMessager == doc.data().firstMessager + doc.data().secondMessager) {
+                setMessagesState(doc.id)
+            }
+        })
+        console.log(chatMessagesState)
+        if(chatMessagesState != ' ') {
+
+            const chatDocRef = doc(db, "chats", chatMessagesState)
+            const chatDocRef1 = query(collection(chatDocRef, "messages"), orderBy("date", "asc"))
+            const chatQuerySnapshot = await getDocs(chatDocRef1)
+            chatQuerySnapshot.forEach((doc) => {
+                console.log(doc.data())
+            })
+        }
+        } catch (e) {
+          console.error("Error reading document: ", e);
+        }
+    }
+    const handleOpenChat = async (chat) => {
+      try {
+        console.log("opening chat: " + chat)
+        await OpenChat(docState, chat)
+      } catch (err) {
+        console.log(err)
+      }
+    }
     return (
         <Box>
             <Flex pos="fixed" top="10%" left="5%">
-                <Box maxWidth={"280px"} h="100%" rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
+                {loading ? (
+                    <Spinner></Spinner>
+                ) : (
+                <Anim>
+                    <Box css={{ backdropFilter: 'blur(15px)' }} maxWidth={"280px"} h="100%" rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
                     {sign ?
-                    (<Text><Heading fontSize={"17px"} mb="5px">{docState}</Heading> </Text>)
+                        (<Text><Heading fontSize={"17px"} mb="5px">{docState}</Heading> </Text>)
                     : 
-                    (<Text 
-                    text-align="center"
-                    fontSize={"14px"}
-                    pb="2">
-                        Don't have an account? <Link href="/signup" pb="10px">Sign up</Link></Text> )}
-                    <Divider/>
-                    {
-                    m && m.map((el) =>
-                    el.firstMessager == docState ? 
-                    (<Button variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
-                    (el.secondMessager == docState ? 
-                    (<Button variant={"solid"} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
-                    )
-                    )}
+                        (<Text 
+                        text-align="center"
+                        fontSize={"14px"}
+                        pb="2">
+                            Don't have an account? <NextLink href="/signup">Sign up</NextLink></Text> )}
+                        <Divider/>
+                        {
+                        m && m.map((el) =>
+                        el.firstMessager == docState ? 
+                        (<Button variant={"solid"} onClick={() => handleOpenChat(el.secondMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
+                        (el.secondMessager == docState ? 
+                        (<Button variant={"solid"} onClick={() => handleOpenChat(el.firstMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
+                        )
+                        )}
                     <Divider mt="2"/>
                     <Button mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Account Preferences</Button>
                 </Box>
+                </Anim>
+                )}
             </Flex>
         </Box>
     )
