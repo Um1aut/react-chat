@@ -2,11 +2,12 @@ import Head from 'next/head'
 import Navbar from '../components/Container.js'
 import Content from '../components/home.js'
 import Anim from '../components/section.js'
-import Sidebar from '../components/Sidebar'
+import Settings from '../components/Sidebar'
+import { Field, Form, Formik } from 'formik';
 import {db} from '../config/firebase'
 import { doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { addDoc, collection, getDocs } from 'firebase/firestore';
-import { IconButton } from '@chakra-ui/react'
+import { HStack, IconButton } from '@chakra-ui/react'
 import { FiMenu } from 'react-icons/fi'
 import NextLink from 'next/link'
 import { useCollectionData } from 'react-firebase-hooks/firestore';
@@ -22,7 +23,10 @@ import { useColorMode,
         Flex,
         Stack,
         Container,
-        Progress,Input, Box, Button, Spinner
+        Progress,Input, Box, Button, Spinner, Center,   FormControl,
+        FormLabel,
+        FormErrorMessage,
+        FormHelperText,
 } from '@chakra-ui/react'
 
 export default function Index() {
@@ -35,9 +39,7 @@ export default function Index() {
     dark: 'gray.400'
   }
 
-  const [data, setData] = useState({
-    messageText: '',
-  })
+  const [data, setData] = useState()
   let [sign, changeSign] = useState(Boolean)
   let [user, setUser] = useState('')
 
@@ -66,44 +68,15 @@ export default function Index() {
       }
   })
   const [docState, setdocState] = useState()
+  const [chatMessagesState, setMessagesState] = useState('')
 
   const qer = query(collection(db, "chats"));
   const [chats] = useCollectionData(qer, {firstMessager: 'firstMessager', secondMessager: 'secondMessager'})
 
-  // const [chatCanBeCrated, setchatCanBeCreated] = useBoolean(false)
+  const chatDoc = doc(db, "chats", chatMessagesState == "" ? ("G1GlnWYLe9QsUg4E9amT") : (chatMessagesState))
+  const chatDocRef = query(collection(chatDoc, "messages"), orderBy("date", "asc"));
+  const [chats1] = useCollectionData(chatDocRef, {name: 'name', message: 'message'})
 
-  // const createChat = async (firstMessager, secondMessager) => {
-  //     try {
-  //         const q = query(collection(db, "chats"));
-  //         const querySnapshot = await getDocs(q);
-  //         querySnapshot.forEach((doc) => {
-  //                 const createChatSequence = docState + secondMessager
-  //                 const createChatSequenceSecond = docState + firstMessager
-
-  //                 const normal = doc.data().firstMessager + doc.data().secondMessager;
-  //                 const reverse = doc.data().secondMessager + doc.data().firstMessager;
-
-  //                 if(createChatSequence == normal || createChatSequence == reverse ||createChatSequenceSecond == normal || createChatSequenceSecond == reverse) {
-  //                     console.log('dsads')
-  //                     setchatCanBeCreated.off()
-  //                 } else {
-  //                     console.log('dsdsadsa')
-  //                     setchatCanBeCreated.on()
-  //                 }
-  //         })
-
-  //         if(chatCanBeCrated == true) {
-  //             const docRef = await addDoc(collection(db, "chats"), {
-  //                 firstMessager: firstMessager,
-  //                 secondMessager: secondMessager
-  //             });
-  //             console.log("Document written with ID: ", docRef.id);
-  //             setchatCanBeCreated.off()
-  //         }
-  //     } catch (e) {
-  //         console.error("Error adding document: ", e);
-  //     }
-  // }
 
   const handleChat = async (user) => {
       try {
@@ -112,25 +85,26 @@ export default function Index() {
       console.log(err)
       }
   }
-  const [chatMessagesState, setMessagesState] = useState('')
 
-  const [docRefState, setDocRefState] = useState()
   const OpenChat = async (firstMessager, secondMessager) => {
+      setLoading(true);
       const q = query(collection(db, "chats"));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
           if(secondMessager + firstMessager == doc.data().firstMessager + doc.data().secondMessager) {
               setMessagesState(doc.id)
+          } else if (firstMessager + secondMessager == doc.data().firstMessager + doc.data().secondMessager) {
+            setMessagesState(doc.id)
+          } else if(secondMessager + firstMessager == doc.data().secondMessager + doc.data().firstMessager) {
+            setMessagesState(doc.id)
+          } else if(firstMessager + secondMessager == doc.data().secondMessager + doc.data().firstMessager) {
+            setMessagesState(doc.id)
           }
       })
+      setLoading(false)
       console.log(chatMessagesState)
-      const chatDocRef = doc(db, "chats", chatMessagesState)
-      const chatDocRef1 = query(collection(chatDocRef, "messages"), orderBy("date", "asc"))
-      const [chats1] = useCollectionData(chatDocRef1, {name: 'name', message: 'message'})
-      chats1.forEach((doc) => {
-        console.log(doc.data())
-      })
   }
+
   const handleOpenChat = async (chat) => {
     try {
       console.log("opening chat: " + chat)
@@ -154,7 +128,7 @@ export default function Index() {
   getfromdb()
   const sendMessage = async (name, message) => {
     try {
-        const docRef = await addDoc(collection(db, "messages"), {
+        const docRef = await addDoc(collection(chatDoc, "messages"), {
           name: name,
           message: message,
           date: new Date().getTime()
@@ -164,20 +138,28 @@ export default function Index() {
         console.error("Error adding document: ", e);
       }
   }
-
+  const [buttonLoading, setButtonLoading] = useState(Boolean)
   const handleMessage = async (e) => {
     e.preventDefault()
     try {
-      document.getElementById('input').value = ''
-      await sendMessage(docState, data.messageText)
+        setButtonLoading(true)
+        window.scrollTo(0, document.body.scrollHeight);
+        await sendMessage(docState, data)
+        window.scrollTo(0, document.body.scrollHeight);
+        setButtonLoading(false)
+        document.getElementById('input').value = ''
     } catch (err) {
       console.log(err)
     }
   }
 
+  const handleChange = (event) => setData(event.target.value)
+
   const [loading, setLoading] = useState(true)
+  const [Selectorloading, setSelectorloading] = useState(true)
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
+    setTimeout(() => setSelectorloading(false), 2000);
   }, [])
   
   return (
@@ -187,39 +169,39 @@ export default function Index() {
     <Stack>
     <Content>
     <Anim>
-        <Container pt="50px" pb="32px">
+      <Center mb="100" mt="60px">
         {!loading ? (
-          <Anim>
-            <ul>
-          {m && m.map((el)=>
-          <Container display="flex" justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
-            <Box mb="5px" 
-            bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, blackAlpha.300, blackAlpha.300)')}
-            rounded={"25px"} 
-            p={4} 
-            color={colorMode}>
-              <Text pb={docState == el.name ? ("0px") : ('5px')} fontSize={"12px"} color={colorMode}>{
-              docState == el.name ? ('') : (el.name)
-              }</Text>
-              {el.message}
-            </Box>
-          </Container>
+            <Anim w="100%">
+            {chats1 && chats1.map((el)=>
+            <Flex display="flex" w="400px" justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
+              <Anim>
+                <Box mb="5px" 
+                bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, blackAlpha.300, blackAlpha.300)')}
+                rounded={"25px"} 
+                p={4} 
+                color={colorMode}>
+                  <Text pb={docState == el.name ? ("0px") : ('5px')} fontSize={"12px"} color={colorMode}>{
+                  docState == el.name ? ('') : (el.name)
+                  }</Text>
+                  {el.message}
+                </Box>
+              </Anim>
+            </Flex>
+            )}
+            </Anim>
+          ) : (
+            <Spinner
+            position="absolute"
+            top="50%"
+            left="50%"
+            ></Spinner>
           )}
-          </ul>
-          </Anim>
-        ) : (
-          <Spinner
-          position="absolute"
-          top="50%"
-          left="50%"
-          ></Spinner>
-        )}
-        </Container>
+      </Center>
       </Anim>
       <Flex w="100%" mt="1em" maxWidth="700px">
       <Box>
             <Flex pos="fixed" top="10%" left="5%">
-                {loading ? (
+                {Selectorloading ? (
                     <Spinner></Spinner>
                 ) : (
                     <Anim>
@@ -242,8 +224,8 @@ export default function Index() {
                             )
                             )}
                         <Divider mt="2"/>
-                        <Button mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Account Preferences</Button>
-                    </Box>
+                        <Settings/>
+                        </Box>
                     </Anim>
                 )}
             </Flex>
@@ -261,18 +243,19 @@ export default function Index() {
       
       transform="translate(-50%, -50%)">
         <Flex
+        justifyContent={"center"}
         padding="30px"
         margin="auto"
         w={"60%"}
         left="20%"
         zIndex={1}
         >
-            <Input variant={"filled"} id="input" onChange={(e) =>
-                setData({
-                  ...data,
-                  messageText: e.target.value,
-                }) } placeholder='Message...' size="lg"/>
-            <Button onClick={handleMessage} h="50px" ml="5">Send</Button>
+          <form isRequired>
+            <HStack justifyContent={"flex-end"}>
+              <Input variant={"filled"} id="input" value={data} onChange={handleChange} placeholder='Message...' size="lg"/>
+              <Button type='submit' variant='solid' isLoading={buttonLoading} onClick={handleMessage} h="50px" ml="5" >Send</Button>
+              </HStack>
+          </form>
         </Flex>
         </Box>
       </Box>

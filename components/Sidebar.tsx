@@ -15,8 +15,22 @@ import {
     Spinner,
     useBoolean,
     Center,
-    Progress
+    Progress,
+    useDisclosure,
+    ModalOverlay,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody,
+    ModalFooter,
+    useColorMode,
+    Input,
+    HStack,
+    FormErrorMessage
 } from '@chakra-ui/react'
+import { FormControl, FormHelperText, FormLabel } from "@chakra-ui/react";
+import { SearchIcon } from '@chakra-ui/icons'
 import {
     FiMenu,
     FiHome,
@@ -37,21 +51,47 @@ import router from 'next/router';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import Anim from './section';
 
-// async function getfromdb(db: any) {
-//     const querySnapshot = await getDocs(collection(db, "users"));
-//         querySnapshot.forEach((doc) => {
-//                 return doc.data().name
-//         });
-//     }
-const usera=auth.currentUser
-export default function Sidebar() {
+function Settings() {
+    const bgColor = {
+      light: 'white',
+      dark: 'gray.650'
+    }
+    
+    const color = {
+      light: 'black',
+      dark: 'white'
+    }
+
+    const OverlayOne = () => (
+      <ModalOverlay
+        bg={bgColor[colorMode]}
+        backdropFilter='blur(10px)'
+      />
+    )
+    const countries = [
+        "nigeria",
+        "japan",
+        "india",
+        "united states",
+        "south korea",
+      ];
+  
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [overlay, setOverlay] = React.useState(<OverlayOne />)
+    const {colorMode} = useColorMode()
+    const [value, setValue] = React.useState('')
+    const handleChange = (event) => setValue(event.target.value)
     let [sign, changeSign] = useState(Boolean)
+    let [user, setUser] = useState('')
+    const [docState, setdocState] = useState()
+
     const AuthStateChange = async() => {
       onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/firebase.User
-                const uid = user.uid;
+                const uid = user.email;
+                setUser(uid)
                 changeSign(true);
                 // ...
             } else {
@@ -61,6 +101,20 @@ export default function Sidebar() {
             }
         });
     }
+
+    const getfromdb = async () => {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            if (userState) {
+                querySnapshot.forEach((doc) => {
+                    if(emailState == doc.data().email) {
+                        setdocState(doc.data().name)
+                    }
+                });
+            }
+    }
+    AuthStateChange()
+    getfromdb()
+
     const [emailState, emailsetState] = useState("")
     const userState = onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -70,137 +124,37 @@ export default function Sidebar() {
         }
     })
 
-    const q = query(collection(db, "chats"));
-    const [m] = useCollectionData(q, {firstMessager: 'firstMessager', secondMessager: 'secondMessager'})
+    let t = []
 
-    const [docState, setState] = useState()
-    const [navSize, changeNavSize] = useState("large")
-
-    const getfromdb = async () => {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            if (userState) {
-                querySnapshot.forEach((doc) => {
-                    if(emailState == doc.data().email) {
-                        setState(doc.data().name)
-                    }
-                });
-            }
-    }
-
-    const [chatCanBeCrated, setchatCanBeCreated] = useBoolean(false)
-
-    const createChat = async (firstMessager, secondMessager) => {
-        try {
-            const q = query(collection(db, "chats"));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                    const createChatSequence = docState + secondMessager
-                    const createChatSequenceSecond = docState + firstMessager
-
-                    const normal = doc.data().firstMessager + doc.data().secondMessager;
-                    const reverse = doc.data().secondMessager + doc.data().firstMessager;
-
-                    if(createChatSequence == normal || createChatSequence == reverse ||createChatSequenceSecond == normal || createChatSequenceSecond == reverse) {
-                        console.log('dsads')
-                        setchatCanBeCreated.off()
-                    } else {
-                        console.log('dsdsadsa')
-                        setchatCanBeCreated.on()
-                    }
-            })
-
-            if(chatCanBeCrated == true) {
-                const docRef = await addDoc(collection(db, "chats"), {
-                    firstMessager: firstMessager,
-                    secondMessager: secondMessager
-                });
-                console.log("Document written with ID: ", docRef.id);
-                setchatCanBeCreated.off()
-            }
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    }
-
-    const handleChat = async (user) => {
-        try {
-        await createChat(docState, user)
-        } catch (err) {
-        console.log(err)
-        }
-    }
-    const [chatMessagesState, setMessagesState] = useState('')
-
-    const [docRefState, setDocRefState] = useState()
-
-    const [loading, setLoading] = useState(false)
-    useEffect(() => {
-      setTimeout(() => setLoading(true), 2000);
-    }, [])
-    AuthStateChange()
-    getfromdb()
-    const OpenChat = async (firstMessager, secondMessager) => {
-      try {
-        const q = query(collection(db, "chats"));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            if(secondMessager + firstMessager == doc.data().firstMessager + doc.data().secondMessager) {
-                setMessagesState(doc.id)
-            }
+        const q = query(collection(db, "users"));
+        const [users1] = useCollectionData(q, {
+            name: 'name',
+            email: 'email'
         })
-        console.log(chatMessagesState)
-        if(chatMessagesState != ' ') {
-
-            const chatDocRef = doc(db, "chats", chatMessagesState)
-            const chatDocRef1 = query(collection(chatDocRef, "messages"), orderBy("date", "asc"))
-            const chatQuerySnapshot = await getDocs(chatDocRef1)
-            chatQuerySnapshot.forEach((doc) => {
-                console.log(doc.data())
-            })
-        }
-        } catch (e) {
-          console.error("Error reading document: ", e);
-        }
-    }
-    const handleOpenChat = async (chat) => {
-      try {
-        console.log("opening chat: " + chat)
-        await OpenChat(docState, chat)
-      } catch (err) {
-        console.log(err)
-      }
-    }
     return (
-        <Box>
-            <Flex pos="fixed" top="10%" left="5%">
-                {loading ? (
-                    <Spinner></Spinner>
-                ) : (
-                <Anim>
-                    <Box css={{ backdropFilter: 'blur(15px)' }} maxWidth={"280px"} h="100%" rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
-                    {sign ?
-                        (<Text><Heading fontSize={"17px"} mb="5px">{docState}</Heading> </Text>)
-                    : 
-                        (<Text 
-                        text-align="center"
-                        fontSize={"14px"}
-                        pb="2">
-                            Don't have an account? <NextLink href="/signup">Sign up</NextLink></Text> )}
-                        <Divider/>
-                        {
-                        m && m.map((el) =>
-                        el.firstMessager == docState ? 
-                        (<Button variant={"solid"} onClick={() => handleOpenChat(el.secondMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
-                        (el.secondMessager == docState ? 
-                        (<Button variant={"solid"} onClick={() => handleOpenChat(el.firstMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
-                        )
-                        )}
-                    <Divider mt="2"/>
-                    <Button mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Account Preferences</Button>
-                </Box>
-                </Anim>
-                )}
-            </Flex>
-        </Box>
+      <>
+      <Button onClick={() => {
+            setOverlay(<OverlayOne />)
+            onOpen()
+          }} mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Add Chat/Preferences</Button>
+        <Modal isCentered isOpen={isOpen} onClose={onClose}>
+          {overlay}
+          <ModalContent >
+            <ModalHeader>Settings</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody >
+            <Text>Users</Text>
+            {users1 && users1.map((el)=> <Text>{el.name}</Text>)}
+            
+            </ModalBody>
+            <ModalFooter >
+              <Button>Apply</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </>
     )
 }
+
+
+export default Settings

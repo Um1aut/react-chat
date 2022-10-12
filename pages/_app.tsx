@@ -34,7 +34,7 @@ const GlobalStyle = ({children}) => {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: ${colorMode === 'light' ? 'white' : 'gray.650'};
+            background: ${colorMode === 'light' ? 'white' : 'gray.450'};
           }
         `}
       />
@@ -81,7 +81,7 @@ function MyApp({ Component, pageProps }) {
       }}
     >
         <GlobalStyle>
-          <Progress sx={{"& > div:first-child": {transitionProperty: "width",},}} zIndex={3} size='xs' id='progressBar' colorScheme='blue' value={animationValue}></Progress>
+          <Progress sx={{"& > div:first-child": {transitionProperty: "width",}, visibility: "hidden"}} zIndex={3} size='xs' id='progressBar' colorScheme='blue' value={animationValue}></Progress>
           <Component {...pageProps} />
         </GlobalStyle>
       </ColorModeProvider>
