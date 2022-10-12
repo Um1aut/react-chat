@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore"; 
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, setDoc } from "firebase/firestore"; 
 import NextLink from 'next/link'
 import {
     Flex,
@@ -31,6 +31,7 @@ import {
 } from '@chakra-ui/react'
 import { FormControl, FormHelperText, FormLabel } from "@chakra-ui/react";
 import { SearchIcon } from '@chakra-ui/icons'
+import { Select } from '@chakra-ui/react'
 import {
     FiMenu,
     FiHome,
@@ -127,28 +128,79 @@ function Settings() {
     let t = []
 
         const q = query(collection(db, "users"));
-        const [users1] = useCollectionData(q, {
+        const [users] = useCollectionData(q, {
             name: 'name',
             email: 'email'
         })
+        const [a, seta] = useState(false)
+        const [opData, setOpData] = useState('')
+
+        const createNewChat = async (first, second) => {
+          console.log(first)
+          console.log(second)
+          const q = query(collection(db, "chats"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+              if(second + first == doc.data().firstMessager + doc.data().secondMessager) {
+                seta(false)
+                console.log(a)
+                return;
+              } else if (first + second == doc.data().firstMessager + doc.data().secondMessager) {
+                seta(false)
+                console.log(a)
+                return;
+              } else if(second + first == doc.data().secondMessager + doc.data().firstMessager) {
+                seta(false)
+                console.log(a)
+                return;
+              } else if(first + second == doc.data().secondMessager + doc.data().firstMessager) {
+                seta(false)
+                console.log(a)
+                return;
+              } else {
+                seta(true)
+                console.log(a)
+                return;}
+          })
+        }
+        const createChatHandler = async(e) => {
+          try {
+            await createNewChat(docState, opData)
+            console.log(a)
+            // if(a == true) {
+            //     // await addDoc(collection(db, "chats"), {
+            //     //   firstMessager: docState,
+            //     //   secondMessager: opData
+            //     // });
+            // } else { console.log("no"); }
+          } catch (e) {
+            console.log(e)
+          }
+        }
+        const handleData = async (event) => setOpData(event.target.value)
+
+
     return (
       <>
       <Button onClick={() => {
             setOverlay(<OverlayOne />)
             onOpen()
-          }} mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Add Chat/Preferences</Button>
+          }} mt="2" variant="outline" h='1.75rem' w="100%" size='sm'>Add New Chat</Button>
         <Modal isCentered isOpen={isOpen} onClose={onClose}>
           {overlay}
           <ModalContent >
-            <ModalHeader>Settings</ModalHeader>
+            <ModalHeader>Add a new chat</ModalHeader>
             <ModalCloseButton />
             <ModalBody >
-            <Text>Users</Text>
-            {users1 && users1.map((el)=> <Text>{el.name}</Text>)}
-            
+            <Text fontSize="18px">Select user</Text>
+            <Select placeholder='Select option'>
+              {users && users.map((el) => 
+                docState == el.name ? ("") : (<option onClick={handleData} value={el.name}>{el.name}</option>)
+              )}
+            </Select>
             </ModalBody>
             <ModalFooter >
-              <Button>Apply</Button>
+              <Button onClick={createChatHandler}>Add</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
