@@ -87,7 +87,6 @@ export default function Index() {
   }
 
   const OpenChat = async (firstMessager, secondMessager) => {
-      setLoading(true);
       const q = query(collection(db, "chats"));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
@@ -101,14 +100,21 @@ export default function Index() {
             setMessagesState(doc.id)
           }
       })
-      setLoading(false)
       console.log(chatMessagesState)
   }
+
+  const [buttonVariant, setButtonVariant] = useState(Boolean)
 
   const handleOpenChat = async (chat) => {
     try {
       console.log("opening chat: " + chat)
+      setData('')
+      setButtonVariant(true)
+      setLoading(true);
       await OpenChat(docState, chat)
+      setLoading(false)
+      setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 500);
+      setButtonVariant(false)
     } catch (err) {
       console.log(err)
     }
@@ -144,10 +150,10 @@ export default function Index() {
     try {
         setButtonLoading(true)
         window.scrollTo(0, document.body.scrollHeight);
+        setData('')
         await sendMessage(docState, data)
         window.scrollTo(0, document.body.scrollHeight);
         setButtonLoading(false)
-        document.getElementById('input').value = ''
     } catch (err) {
       console.log(err)
     }
@@ -218,9 +224,25 @@ export default function Index() {
                             {
                             chats && chats.map((el) =>
                             el.firstMessager == docState ? 
-                            (<Button variant={"solid"} onClick={() => handleOpenChat(el.secondMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
+                            (<Button _active={{
+                              bg: '#dddfe2',
+                              transform: 'scale(0.98)',
+                              borderColor: '#bec3c9',
+                            }} 
+                            _focus={{
+                              boxShadow:
+                                '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
+                            }} variant={"solid"} onClick={() => {handleOpenChat(el.secondMessager)}} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
                             (el.secondMessager == docState ? 
-                            (<Button variant={"solid"} onClick={() => handleOpenChat(el.firstMessager)} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
+                            (<Button _active={{
+                              bg: '#dddfe2',
+                              transform: 'scale(0.98)',
+                              borderColor: '#bec3c9',
+                            }} 
+                            _focus={{
+                              boxShadow:
+                                '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
+                            }} variant={"solid"} onClick={() => {handleOpenChat(el.firstMessager) }} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
                             )
                             )}
                         <Divider mt="2"/>
