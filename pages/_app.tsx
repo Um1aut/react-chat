@@ -1,8 +1,9 @@
-import { ChakraProvider, ColorModeProvider, Progress, Spinner, useColorMode } from '@chakra-ui/react'
+import { Box, Button, ChakraProvider, ColorModeProvider, Progress, Spinner, useColorMode } from '@chakra-ui/react'
 import customTheme from '../styles/theme.js'
 import { Global, css } from '@emotion/react'
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router.js';
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
 
 const GlobalStyle = ({children}) => {
   const { colorMode } = useColorMode()
@@ -42,7 +43,6 @@ const GlobalStyle = ({children}) => {
     </>
   )
 }
-
 function MyApp({ Component, pageProps }) {
   const [animationValue, setAnimationValue] = useState(0)
   const router = useRouter()
