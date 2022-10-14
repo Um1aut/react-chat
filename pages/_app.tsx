@@ -37,6 +37,14 @@ const GlobalStyle = ({children}) => {
             min-height: 100vh;
             background: ${colorMode === 'light' ? 'white' : 'gray.450'};
           }
+          .prg {
+            position: fixed;
+            hight: 1;
+            width: 100%;
+            left: 0;
+            top: 0;
+            z: 50;
+          }
         `}
       />
       {children}
@@ -81,7 +89,7 @@ function MyApp({ Component, pageProps }) {
       }}
     >
         <GlobalStyle>
-          <Progress sx={{"& > div:first-child": {transitionProperty: "width",}, visibility: "hidden"}} zIndex={3} size='xs' id='progressBar' colorScheme='blue' value={animationValue}></Progress>
+          <Progress className='prg' pos="fixed" sx={{"& > div:first-child": {transitionProperty: "width",}, visibility: "hidden"}} zIndex={3} size='xs' id='progressBar' colorScheme='blue' value={animationValue}></Progress>
           <Component {...pageProps} />
         </GlobalStyle>
       </ColorModeProvider>

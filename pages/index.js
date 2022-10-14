@@ -179,7 +179,7 @@ export default function Index() {
         {!loading ? (
             <Anim w="100%">
             {chats1 && chats1.map((el)=>
-            <Flex display="flex" w="400px" justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
+            <Flex display="flex" className="msg" w={700} justifyContent={docState == el.name ? ('flex-end') : ('flex-start')} >
               <Anim>
                 <Box mb="5px" 
                 bgGradient = {docState == el.name ? ('linear(to-r, pink.200, blue.500)') : ('linear(to-r, blackAlpha.300, blackAlpha.300)')}
@@ -206,12 +206,13 @@ export default function Index() {
       </Anim>
       <Flex w="100%" mt="1em" maxWidth="700px">
       <Box>
-            <Flex pos="fixed" top="10%" left="5%">
+            <Flex pos="fixed" top="10%" left="15%">
                 {Selectorloading ? (
                     <Spinner></Spinner>
                 ) : (
                     <Anim>
-                        <Box css={{ backdropFilter: 'blur(15px)' }} maxWidth={"280px"} h="100%" rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
+                        <Box css={{ backdropFilter: 'blur(15px)' }} maxWidth={"280px"} h="100%"
+                          rounded={"15px"} p={"2em"} pt="1.5em" pb="1.5em" bg={'blackAlpha.200'}>
                         {sign ?
                             (<Text><Heading fontSize={"17px"} mb="5px">{docState}</Heading> </Text>)
                         : 
@@ -223,7 +224,19 @@ export default function Index() {
                             <Divider/>
                             {
                             chats && chats.map((el) =>
-                            el.firstMessager == docState ? 
+                            el.firstMessager == docState && sign ? (
+                              <Button _active={{
+                              bg: '#dddfe2',
+                              transform: 'scale(0.98)',
+                              borderColor: '#bec3c9',
+                            }} 
+                            _focus={{
+                              boxShadow:
+                                '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
+                            }} variant={"solid"} onClick={() => {handleOpenChat(el.secondMessager)}}
+                                h='2rem' w="100%" mt="2" 
+                                size='sx'>{el.secondMessager}</Button>) : 
+                            (el.secondMessager == docState && sign ? 
                             (<Button _active={{
                               bg: '#dddfe2',
                               transform: 'scale(0.98)',
@@ -232,21 +245,16 @@ export default function Index() {
                             _focus={{
                               boxShadow:
                                 '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
-                            }} variant={"solid"} onClick={() => {handleOpenChat(el.secondMessager)}} h='2rem' w="100%" mt="2" size='sx'>{el.secondMessager}</Button>) : 
-                            (el.secondMessager == docState ? 
-                            (<Button _active={{
-                              bg: '#dddfe2',
-                              transform: 'scale(0.98)',
-                              borderColor: '#bec3c9',
-                            }} 
-                            _focus={{
-                              boxShadow:
-                                '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
-                            }} variant={"solid"} onClick={() => {handleOpenChat(el.firstMessager) }} h='2rem' w="100%" mt="2" size='sx'>{el.firstMessager}</Button>) : ('')
+                            }} variant={"solid"}
+                                  onClick={() => {handleOpenChat(el.firstMessager) }} h='2rem' w="100%" mt="2"
+                                  size='sx'>{el.firstMessager}</Button>) : ('')
                             )
                             )}
+                        {sign ? (
+                        <>
                         <Divider mt="2"/>
-                        <Settings/>
+                        <Settings/></> 
+                        ) : ('')}
                         </Box>
                     </Anim>
                 )}
@@ -272,12 +280,14 @@ export default function Index() {
         left="20%"
         zIndex={1}
         >
+          {sign ? (
           <form isRequired>
             <HStack justifyContent={"flex-end"}>
               <Input variant={"filled"} id="input" value={data} onChange={handleChange} placeholder='Message...' size="lg"/>
               <Button type='submit' variant='solid' isLoading={buttonLoading} onClick={handleMessage} h="50px" ml="5" >Send</Button>
               </HStack>
           </form>
+          ) : ('You need to log in')}
         </Flex>
         </Box>
       </Box>

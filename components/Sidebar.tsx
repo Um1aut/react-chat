@@ -53,6 +53,8 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import Anim from './section';
 
 function Settings() {
+  const q = query(collection(db, "users"));
+  const [users] = useCollectionData(q, {})
     const bgColor = {
       light: 'white',
       dark: 'gray.650'
@@ -126,11 +128,6 @@ function Settings() {
     })
     const [data, setData] = useState('')
 
-        const q = query(collection(db, "users"));
-        const [users] = useCollectionData(q, {
-            name: 'name',
-            email: 'email'
-        })
         const [opData, setOpData] = useState('')
 
         const createNewChat = async (first, second) => {

@@ -112,7 +112,7 @@ AuthStateChange()
             <Button as="a" opacity="1.0"
             bg={bgColor[colorMode]}
             color={color[colorMode]}
-            variant="ghost" >Home
+            variant="ghost" >Chats
             </Button> 
           </NextLink>
         </Box>
