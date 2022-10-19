@@ -1,7 +1,7 @@
 # Simple React chat
 
-##Note: this page is outdated.
-###Here's (an actual)[https://github.com/Um1aut/react-chat-template] version.
+## Note: this page is outdated.
+### Here's (an actual)[https://github.com/Um1aut/react-chat-template] version.
 
 
 
